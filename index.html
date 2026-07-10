@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Three-Statement Model: Line Items & Forecast Drivers</title>
+<style>
+  :root {
+    --ink: #1c2128;
+    --sub: #57606a;
+    --line: #d0d7de;
+    --bg: #ffffff;
+    --panel: #f6f8fa;
+    --driver: #dafbe1;
+    --driver-border: #1a7f37;
+    --derived: #ddf4ff;
+    --derived-border: #0969da;
+    --assumption: #fff8c5;
+    --assumption-border: #9a6700;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    line-height: 1.55;
+  }
+  h1 {
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    color: var(--sub);
+    font-size: 15px;
+    margin-top: 0;
+    margin-bottom: 28px;
+  }
+  h2 {
+    font-size: 20px;
+    margin-top: 48px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ink);
+  }
+  h3 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--sub);
+    margin-top: 28px;
+    margin-bottom: 10px;
+  }
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 20px 0 8px;
+    padding: 14px 16px;
+    background: var(--panel);
+    border-radius: 8px;
+    font-size: 13.5px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  .dot.driver { background: var(--driver); border: 1.5px solid var(--driver-border); }
+  .dot.derived { background: var(--derived); border: 1.5px solid var(--derived-border); }
+  .dot.assumption { background: var(--assumption); border: 1.5px solid var(--assumption-border); }
+  .item {
+    border: 1px solid var(--line);
+    border-left-width: 5px;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    background: var(--bg);
+  }
+  .item.driver { border-left-color: var(--driver-border); }
+  .item.derived { border-left-color: var(--derived-border); }
+  .item.assumption { border-left-color: var(--assumption-border); }
+  .item.plain { border-left-color: var(--line); }
+  .item-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .item-name { font-weight: 600; font-size: 15px; }
+  .tag {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .tag.driver { background: var(--driver); color: var(--driver-border); }
+  .tag.derived { background: var(--derived); color: var(--derived-border); }
+  .tag.assumption { background: var(--assumption); color: var(--assumption-border); }
+  .tag.plain { background: var(--panel); color: var(--sub); }
+  .item-desc { color: var(--sub); font-size: 14px; margin-top: 4px; }
+  .item-how {
+    font-size: 13.5px;
+    margin-top: 6px;
+    color: var(--ink);
+  }
+  .item-how b { color: var(--sub); font-weight: 600; }
+  .callout {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 24px 0;
+    font-size: 14.5px;
+  }
+  .callout h4 { margin-top: 0; font-size: 14px; }
+  .toplist {
+    background: #fff8c5;
+    border: 1px solid var(--assumption-border);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 24px 0;
+  }
+  .toplist h4 { margin-top: 0; }
+  .toplist ol { padding-left: 20px; margin-bottom: 0; }
+  .toplist li { margin-bottom: 6px; font-size: 14.5px; }
+  code {
+    background: var(--panel);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Three-Statement Model: Line Items & Forecast Drivers</h1>
+<p class="subtitle">Every line item, what it means, and how it's actually forecasted — color-coded by role in the model.</p>
+
+<div class="legend">
+  <div class="legend-item"><span class="dot driver"></span> Key driver — the input you set; changing it moves the whole model</div>
+  <div class="legend-item"><span class="dot assumption"></span> Assumption — set as a rate or %, less impactful on its own</div>
+  <div class="legend-item"><span class="dot derived"></span> Derived — calculated mechanically from other lines, not a direct input</div>
+</div>
+
+<div class="toplist">
+<h4>If you only care about a handful of numbers, these are the ones that move a three-statement model</h4>
+<ol>
+  <li><b>Revenue growth rate</b> — nearly everything else in the model is built as a percentage of revenue, so this one number cascades through all three statements.</li>
+  <li><b>Gross margin (COGS as % of revenue)</b> — determines how much of that revenue actually turns into profit.</li>
+  <li><b>Operating expense ratio (SG&amp;A + R&amp;D as % of revenue)</b> — the second-biggest swing factor in profitability.</li>
+  <li><b>Capex as % of revenue</b> — drives PP&amp;E, which drives depreciation, which drives both net income and cash flow.</li>
+  <li><b>Working capital days (DSO, DIO, DPO)</b> — small assumptions that quietly control how much cash gets tied up or freed up each period.</li>
+  <li><b>Debt schedule &amp; interest rate</b> — governs interest expense and is the classic source of circularity in a model.</li>
+</ol>
+</div>
+
+<h2>Income Statement</h2>
+
+<div class="item driver">
+  <div class="item-head"><span class="item-name">Revenue</span><span class="tag driver">Driver</span></div>
+  <div class="item-desc">Sales for the period.</div>
+  <div class="item-how"><b>Forecast:</b> the model's starting point — grown off a historical rate, a unit-economics build (units × price), or a market-share assumption. Almost every other line is expressed as a % of this number.</div>
+</div>
+
+<div class="item assumption">
+  <div class="item-head"><span class="item-name">COGS / Cost of Revenue</span><span class="tag assumption">Assumption</span></div>
+  <div class="item-desc">Materials, direct labor, hosting/delivery costs.</div>
+  <div class="item-how"><b>Forecast:</b> held as a % of revenue (i.e., target gross margin), not built up from raw inputs, unless you have detailed unit cost data.</div>
+</div>
+
+<div class="item derived">
+  <div class="item-head"><span class="item-name">Gross Profit</span><span class="tag derived">Derived</span></div>
+  <div class="item-desc">Revenue − COGS.</div>
+  <div class="item-how"><b>Forecast:</b> falls out automatically once revenue and COGS% are set.</div>
+</div>
+
+<div class="item assumption">
+  <div class="item-head"><span class="item-name">SG&amp;A</span><span class="tag assumption">Assumption</span></div>
+  <div class="item-desc">Sales, marketing, admin, executive salaries, rent.</div>
+  <div class="item-how"><b>Forecast:</b> % of revenue, sometimes with a fixed-cost floor since not all overhead scales with sales.</div>
+</div>
+
+<div class="item assumption">
+  <div class="item-head"><span class="item-name">R&amp;D</span><span class="tag assumption">Assumption</span></div>
+  <div class="item-desc">Product development spend.</div>
+  <div class="item-how"><b>Forecast:</b> % of revenue, or held flat/grown independently for early-stage companies investing ahead of sales.</div>
+</div>
+
+<div class="item derived">
+  <div class="item-head"><span class="item-name">D&amp;A (if shown on income statement)</span><span class="tag derived">Derived</span></div>
+  <div class="item-desc">Non-cash expense spreading asset cost over time.</div>
+  <div class="item-how"><b>Forecast:</b> not an independent input — it flows out of the PP&amp;E/capex schedule (see balance sheet section). Get capex right and D&amp;A follows.</div>
+</div>
+
+<div class="item derived">
+  <div class="item-head"><span class="item-name">Operating Income (EBIT)</span><span class="tag derived">Derived</span></div>
+  <div class="item-desc">Gross Profit − Opex.</div>
+  <div class="item-how"><b>Forecast:</b> mechanical output of the lines above.</div>
+</div>
+
+<div class="item derived">
+  <div class="item-head"><span class="item-name">Interest Expense / Income</span><span class="tag derived">Derived</span></div>
+  <div class="item-desc">Cost of debt / yield on cash.</div>
+  <div class="item-how"><b>Forecast:</b> interest rate assumption × average debt or cash balance from the balance sheet. This is the classic <b>circular reference</b>: interest depends on the debt balance, which depends on cash flow, which depends on net income, which depends on interest. Models handle this with a circularity switch or by using beginning-of-period balances.</div>
+</div>
+
+<div class="item assumption">
+  <div class="item-head"><span class="item-name">Tax Rate</span><span class="tag assumption">Assumption</span></div>
+  <div class="item-desc">Government's share of pre-tax income.</div>
+  <div class="item-how"><b>Forecast:</b> held constant at the company's effective (not statutory) tax rate unless you have specific reason to change it.</div>
+</div>
+
+<div class="item derived">
+  <div class="item-head"><span class="item-name">Net Income</span><span class="tag derived">Derived</span></div>
+  <div class="item-desc">The bottom line.</div>
+  <div class="item-how"><b>Forecast:</b> pure output — but it's the single most important output, since it feeds both the balance sheet (retained earnings) and cash flow statement (starting line).</div>
+</div>
+
+<h2>Balance Sheet</h2>
+
+<div class="item assumption">
+  <div class="item-head"><span class="item-name">Accounts Receivable</span><span class="tag assumption">Assumption</span></div>
+  <div class="item-desc">Cash owed by customers who bought on credit.</div>
+  <div class="item-how"><b>Forecast:</b> driven by <b>Days Sales Outstanding (DSO)</b> = AR ÷ Revenue × 365. Set a target DSO, then AR = Revenue × DSO ÷ 365. A small change here has an outsized effect on cash.</div>
+</div>
+
+<div class="item assumption">
+  <div class="item-head"><span class="item-name">Inventory</span><span class="tag assumption">Assumption</span></div>
+  <div class="item-desc">Unsold materials/goods.</div>
+  <div class="item-how"><b>Forecast:</b> driven by <b>Days Inventory Outstanding (DIO)</b> = Inventory ÷ COGS × 365, same mechanic as DSO.</div>
+</div>
+
+<div class="item driver">
+  <div class="item-head"><span class="item-name">PP&amp;E, net</span><span class="tag driver">Driver</span></div>
+  <div class="item-desc">Buildings, equipment, machinery, net of depreciation.</div>
+  <div class="item-how"><b>Forecast:</b> rolls forward as Beginning PP&amp;E + Capex − Depreciation. Capex is usually set as a % of revenue — this single assumption controls PP&amp;E, D&amp;A, and a chunk of the cash flow statement all at once.</div>
+</div>
+
+<div class="item plain">
+  <div class="item-head"><span class="item-name">Goodwill / Intangibles</span><span class="tag plain">Static</span></div>
+  <div class="item-desc">Value from acquisitions, patents, trademarks.</div>
+  <div class="item-how"><b>Forecast:</b> usually held flat unless the model assumes future acquisitions or amortizes a specific intangible on a known schedule.</div>
+</div>
+
+<div class="item assumption">
+  <div class="item-head"><span class="item-name">Accounts Payable</span><span class="tag assumption">Assumption</span></div>
+  <div class="item-desc">Cash owed to suppliers.</div>
+  <div class="item-how"><b>Forecast:</b> driven by <b>Days Payable Outstanding (DPO)</b> = AP ÷ COGS × 365. Higher DPO means the company is holding onto cash longer — good for cash flow, but a real operating constraint, not a free lever.</div>
+</div>
+
+<div class="item plain">
+  <div class="item-head"><span class="item-name">Accrued Expenses / Deferred Revenue</span><span class="tag plain">Static</span></div>
+  <div class="item-desc">Costs incurred but unpaid; cash collected but unearned.</div>
+  <div class="item-how"><b>Forecast:</b> typically % of revenue or opex, or grown in line with the related driver (e.g., deferred revenue tracks bookings for subscription businesses).</div>
+</div>
+
+<div class="item driver">
+  <div class="item-head"><span class="item-name">Debt (short- and long-term)</span><span class="tag driver">Driver</span></div>
+  <div class="item-desc">Loans and bonds outstanding.</div>
+  <div class="item-how"><b>Forecast:</b> governed by a debt schedule — scheduled repayments, any new issuance, and (in a full model) a revolver that automatically draws or repays based on whether the company has a cash shortfall or surplus. This balance is what interest expense is calculated on.</div>
+</div>
+
+<div class="item derived">
+  <div class="item-head"><span class="item-name">Retained Earnings</span><span class="tag derived">Derived</span></div>
+  <div class="item-desc">Cumulative profit kept in the business.</div>
+  <div class="item-how"><b>Forecast:</b> rolls forward as Beginning Retained Earnings + Net Income − Dividends. Purely mechanical, but it's the line that ties the income statement into the balance sheet.</div>
+</div>
+
+<div class="item derived">
+  <div class="item-head"><span class="item-name">Cash</span><span class="tag derived">Derived</span></div>
+  <div class="item-desc">Cash and equivalents on hand.</div>
+  <div class="item-how"><b>Forecast:</b> the "plug" — it's whatever the cash flow statement says ending cash is. This is also what makes the balance sheet balance; if it doesn't, there's an error somewhere upstream.</div>
+</div>
+
+<h2>Cash Flow Statement</h2>
+
+<div class="item plain">
+  <div class="item-head"><span class="item-name">Net Income (starting line)</span><span class="tag plain">Carried over</span></div>
+  <div class="item-desc">Pulled directly from the income statement.</div>
+</div>
+
+<div class="item derived">
+  <div class="item-head"><span class="item-name">+ D&amp;A add-back</span><span class="tag derived">Derived</span></div>
+  <div class="item-desc">Non-cash expense added back.</div>
+  <div class="item-how"><b>Forecast:</b> comes straight from the PP&amp;E/capex schedule — no independent assumption needed.</div>
+</div>
+
+<div class="item derived">
+  <div class="item-head"><span class="item-name">± Working Capital Changes</span><span class="tag derived">Derived</span></div>
+  <div class="item-desc">Period-over-period change in AR, inventory, AP, accrued items.</div>
+  <div class="item-how"><b>Forecast:</b> mechanically calculated from the DSO/DIO/DPO assumptions on the balance sheet — this is where those "small" working capital assumptions actually hit cash.</div>
+</div>
+
+<div class="item driver">
+  <div class="item-head"><span class="item-name">Capex</span><span class="tag driver">Driver</span></div>
+  <div class="item-desc">Cash spent on PP&amp;E.</div>
+  <div class="item-how"><b>Forecast:</b> set directly as % of revenue — one of the biggest single levers in the whole model, since it simultaneously drives investing cash outflow, PP&amp;E, and future D&amp;A.</div>
+</div>
+
+<div class="item plain">
+  <div class="item-head"><span class="item-name">Acquisitions / Asset Sales</span><span class="tag plain">Scenario-driven</span></div>
+  <div class="item-desc">Cash for buying companies or selling assets.</div>
+  <div class="item-how"><b>Forecast:</b> usually zero in a base-case forecast unless modeling a specific known deal.</div>
+</div>
+
+<div class="item derived">
+  <div class="item-head"><span class="item-name">Debt Issued / Repaid</span><span class="tag derived">Derived</span></div>
+  <div class="item-desc">Cash in/out from borrowing or paying down debt.</div>
+  <div class="item-how"><b>Forecast:</b> comes from the debt schedule — scheduled amortization plus any revolver draw/paydown needed to keep cash from going negative.</div>
+</div>
+
+<div class="item assumption">
+  <div class="item-head"><span class="item-name">Dividends / Buybacks</span><span class="tag assumption">Assumption</span></div>
+  <div class="item-desc">Cash returned to shareholders.</div>
+  <div class="item-how"><b>Forecast:</b> set as a payout ratio (% of net income) or a fixed dividend per share, based on stated company policy.</div>
+</div>
+
+<div class="item derived">
+  <div class="item-head"><span class="item-name">Ending Cash</span><span class="tag derived">Derived</span></div>
+  <div class="item-desc">Sum of operating, investing, and financing cash flows plus beginning cash.</div>
+  <div class="item-how"><b>Forecast:</b> the final output of the whole model — flows straight back onto the balance sheet as the cash line.</div>
+</div>
+
+<div class="callout">
+<h4>Why this hierarchy matters</h4>
+<p>A three-statement model has maybe 6–8 real inputs (revenue growth, margins, capex %, working capital days, tax rate, debt/interest terms, payout policy) and dozens of lines that are just mechanical consequences of those inputs. When you're stress-testing a model or sanity-checking someone else's, focus your questions on the driver and assumption lines — the derived lines will take care of themselves if the mechanics are built correctly.</p>
+</div>
+
+</body>
+</html>
